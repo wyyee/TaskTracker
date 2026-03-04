@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 
 import { useData, Task } from '../hooks/useData';
 import TaskModal from '../components/tasks/TaskModal';
+import ProjectModal from '../components/tasks/ProjectModal';
 import { useTimer } from '../context/TimerContext';
 
 const getPriorityColor = (priority: string) => {
@@ -80,7 +81,8 @@ const TaskCard = ({ task, projectName, onEdit }: { task: Task, projectName: stri
 
 export default function TaskBoard() {
     const { tasks: initialTasks, projects, loading, refetch } = useData();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+    const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
     const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
@@ -135,16 +137,27 @@ export default function TaskBoard() {
                     <h1 className="text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">Task Board</h1>
                     <p className="text-surface-500 mt-1 font-medium">Manage and track your ongoing work.</p>
                 </motion.div>
-                <motion.button
+                <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
-                    onClick={() => { setTaskToEdit(null); setIsModalOpen(true); }}
-                    className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-bold transition-all shadow-sm hover:shadow-md active:scale-95"
+                    className="flex items-center gap-3"
                 >
-                    <Plus className="w-5 h-5" />
-                    New Task
-                </motion.button>
+                    <button
+                        onClick={() => setIsProjectModalOpen(true)}
+                        className="flex items-center justify-center gap-2 bg-surface-100 hover:bg-surface-200 text-surface-700 px-4 py-2 rounded-lg font-bold transition-all shadow-sm hover:shadow-md active:scale-95 border border-surface-200"
+                    >
+                        <Plus className="w-5 h-5" />
+                        New Project
+                    </button>
+                    <button
+                        onClick={() => { setTaskToEdit(null); setIsTaskModalOpen(true); }}
+                        className="flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-bold transition-all shadow-sm hover:shadow-md active:scale-95"
+                    >
+                        <Plus className="w-5 h-5" />
+                        New Task
+                    </button>
+                </motion.div>
             </header>
 
             {/* Kanban Board */}
@@ -197,7 +210,7 @@ export default function TaskBoard() {
                                                                     <TaskCard
                                                                         task={task}
                                                                         projectName={project?.name || 'Standalone Goal'}
-                                                                        onEdit={(t) => { setTaskToEdit(t); setIsModalOpen(true); }}
+                                                                        onEdit={(t) => { setTaskToEdit(t); setIsTaskModalOpen(true); }}
                                                                     />
                                                                 </div>
                                                             )}
@@ -221,10 +234,16 @@ export default function TaskBoard() {
             </DragDropContext>
 
             <TaskModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isTaskModalOpen}
+                onClose={() => setIsTaskModalOpen(false)}
                 projects={projects}
                 taskToEdit={taskToEdit}
+                onSuccess={refetch}
+            />
+
+            <ProjectModal
+                isOpen={isProjectModalOpen}
+                onClose={() => setIsProjectModalOpen(false)}
                 onSuccess={refetch}
             />
         </motion.div>

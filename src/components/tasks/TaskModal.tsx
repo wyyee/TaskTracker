@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Clock, Repeat, Loader2, Trash2 } from 'lucide-react';
+import { X, Save, Clock, Repeat, Loader2, Trash2, Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { Project, Task } from '../../hooks/useData';
+import ProjectModal from './ProjectModal';
 
 interface TaskModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ export default function TaskModal({ isOpen, onClose, projects, taskToEdit, onSuc
     const [loading, setLoading] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
     // Form State
     const [title, setTitle] = useState('');
@@ -173,9 +175,14 @@ export default function TaskModal({ isOpen, onClose, projects, taskToEdit, onSuc
                         </div>
 
                         <div>
-                            <label htmlFor="project" className="block text-sm font-medium text-surface-700 mb-1">
-                                Project (Optional)
-                            </label>
+                            <div className="flex items-center justify-between mb-1">
+                                <label htmlFor="project" className="block text-sm font-medium text-surface-700">
+                                    Project (Optional)
+                                </label>
+                                <button type="button" onClick={() => setIsProjectModalOpen(true)} className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1 font-medium bg-primary-50 px-2 py-1 rounded-md hover:bg-primary-100 transition-colors">
+                                    <Plus className="w-3.5 h-3.5" /> New Project
+                                </button>
+                            </div>
                             <select
                                 id="project"
                                 value={projectId}
@@ -352,6 +359,12 @@ export default function TaskModal({ isOpen, onClose, projects, taskToEdit, onSuc
                     </div>
                 </form>
             </div>
+
+            <ProjectModal
+                isOpen={isProjectModalOpen}
+                onClose={() => setIsProjectModalOpen(false)}
+                onSuccess={onSuccess}
+            />
         </div>
     );
 }
